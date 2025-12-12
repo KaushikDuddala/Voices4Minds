@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { Calendar, MapPin, Award, CheckCircle, ArrowRight } from "lucide-react"
 import { ScrollAnimation } from "@/components/scroll-animation"
+import { UserAvatar } from "@/components/user-avatar"
 
 export const metadata = {
   title: "Find a Counselor | Voices4Minds",
@@ -49,11 +50,11 @@ export default async function AppointmentsPage() {
                 <Card className="flex flex-col h-full card-animate border-2 hover:border-primary/50">
                   <CardHeader className="pb-4">
                     <div className="flex items-start gap-4">
-                      <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                        <span className="text-2xl font-bold text-primary">
-                          {counselor.profiles?.full_name?.charAt(0) || "C"}
-                        </span>
-                      </div>
+                      <UserAvatar
+                        avatarUrl={counselor.profiles?.avatar_url}
+                        fullName={counselor.profiles?.full_name}
+                        size="xl"
+                      />
                       <div className="flex-1 min-w-0">
                         <CardTitle className="text-xl mb-1">{counselor.profiles?.full_name || "Counselor"}</CardTitle>
                         <p className="text-sm text-muted-foreground">{counselor.credentials || "Licensed Counselor"}</p>

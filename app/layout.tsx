@@ -13,7 +13,6 @@ export const metadata: Metadata = {
   title: "Voices4Minds - Mental Health Support & Resources",
   description: "Access mental health resources, connect with counselors, join supportive communities, and find help. Voices4Minds provides compassionate care for anxiety, depression, and wellness.",
   keywords: ["mental health", "counseling", "therapy", "anxiety", "depression", "support", "wellness"],
-  generator: "v0.app",
   icons: {
     icon: [
       {

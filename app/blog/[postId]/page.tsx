@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import Link from "next/link"
-import { ArrowLeft, Calendar, User, Eye } from "lucide-react"
+import { ArrowLeft, Calendar, Eye } from "lucide-react"
+import { UserAvatar } from "@/components/user-avatar"
 
 export async function generateMetadata({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params
@@ -26,13 +27,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Fetch blog post with author
   const { data: post, error } = await supabase
     .from("blog_posts")
     .select(
       `
       *,
-      author:profiles(full_name)
+      author:profiles(full_name, avatar_url)
     `,
     )
     .eq("id", postId)
@@ -42,12 +42,10 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
     notFound()
   }
 
-  // Check if user can view unpublished posts (author only)
   if (!post.is_published && post.author_id !== user?.id) {
     notFound()
   }
 
-  // Increment view count
   await supabase
     .from("blog_posts")
     .update({ view_count: post.view_count + 1 })
@@ -57,7 +55,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
     <div className="flex items-center justify-center min-h-screen py-8 md:py-12">
       <div className="container w-full">
         <article className="max-w-4xl mx-auto space-y-8">
-          {/* Back Button */}
           <Button variant="ghost" size="sm" asChild>
             <Link href="/blog">
               <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -65,7 +62,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
             </Link>
           </Button>
 
-          {/* Header */}
           <header className="space-y-4">
             {post.category && <Badge variant="secondary">{post.category}</Badge>}
             {!post.is_published && (
@@ -78,7 +74,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
 
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground pt-4 border-t">
               <div className="flex items-center gap-2">
-                <User className="h-4 w-4" aria-hidden="true" />
+                <UserAvatar avatarUrl={post.author?.avatar_url} fullName={post.author?.full_name} size="sm" />
                 <span>{post.author?.full_name || "Anonymous"}</span>
               </div>
               <div className="flex items-center gap-2">
@@ -100,14 +96,12 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
             </div>
           </header>
 
-          {/* Featured Image */}
           {post.featured_image && (
             <div className="aspect-video w-full overflow-hidden rounded-lg">
               <img src={post.featured_image || "/placeholder.svg"} alt="" className="h-full w-full object-cover" />
             </div>
           )}
 
-          {/* Content */}
           <Card>
             <CardContent className="pt-8">
               <div className="prose prose-lg max-w-none">
@@ -116,7 +110,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
             </CardContent>
           </Card>
 
-          {/* Tags */}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {post.tags.map((tag: string, idx: number) => (
@@ -127,16 +120,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
             </div>
           )}
 
-          {/* Author Card */}
           <Card className="bg-muted/50">
             <CardHeader>
               <CardTitle>About the Author</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="flex items-start gap-4">
-                <div className="h-16 w-16 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                  <span className="text-2xl font-bold text-primary">{post.author?.full_name?.charAt(0) || "A"}</span>
-                </div>
+                <UserAvatar avatarUrl={post.author?.avatar_url} fullName={post.author?.full_name} size="xl" />
                 <div>
                   <p className="font-semibold text-lg">{post.author?.full_name || "Anonymous"}</p>
                   <p className="text-sm text-muted-foreground mt-1">
@@ -147,7 +137,6 @@ export default async function BlogPostPage({ params }: { params: Promise<{ postI
             </CardContent>
           </Card>
 
-          {/* Related Content */}
           <Card>
             <CardHeader>
               <CardTitle>Continue Your Journey</CardTitle>

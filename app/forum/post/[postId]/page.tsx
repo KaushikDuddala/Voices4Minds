@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import Link from "next/link"
 import { ReplyForm } from "@/components/reply-form"
 import { MessageSquare, ArrowLeft, Pin } from "lucide-react"
+import { UserAvatar } from "@/components/user-avatar"
 
 export async function generateMetadata({ params }: { params: Promise<{ postId: string }> }) {
   const { postId } = await params
@@ -27,13 +28,12 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
     data: { user },
   } = await supabase.auth.getUser()
 
-  // Fetch post with author and category
   const { data: post, error } = await supabase
     .from("forum_posts")
     .select(
       `
       *,
-      author:profiles(full_name),
+      author:profiles(full_name, avatar_url),
       category:forum_categories(name, slug)
     `,
     )
@@ -44,19 +44,17 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
     notFound()
   }
 
-  // Increment view count
   await supabase
     .from("forum_posts")
     .update({ view_count: post.view_count + 1 })
     .eq("id", postId)
 
-  // Fetch replies
   const { data: replies } = await supabase
     .from("forum_replies")
     .select(
       `
       *,
-      author:profiles(full_name)
+      author:profiles(full_name, avatar_url)
     `,
     )
     .eq("post_id", postId)
@@ -65,7 +63,6 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
   return (
     <div className="container py-8 md:py-12">
       <div className="max-w-4xl mx-auto space-y-6">
-        {/* Back Button */}
         <Button variant="ghost" size="sm" asChild>
           <Link href="/forum">
             <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />
@@ -73,7 +70,6 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
           </Link>
         </Button>
 
-        {/* Post */}
         <Card>
           <CardHeader>
             <div className="flex items-center gap-2 mb-3">
@@ -83,7 +79,12 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
               <span className="text-sm text-muted-foreground">{new Date(post.created_at).toLocaleDateString()}</span>
             </div>
             <CardTitle className="text-3xl">{post.title}</CardTitle>
-            <CardDescription>Posted by {post.author?.full_name || "Anonymous"}</CardDescription>
+            <CardDescription>
+              <div className="flex items-center gap-2 mt-2">
+                <UserAvatar avatarUrl={post.author?.avatar_url} fullName={post.author?.full_name} size="sm" />
+                <span>Posted by {post.author?.full_name || "Anonymous"}</span>
+              </div>
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="prose prose-sm max-w-none">
@@ -100,18 +101,20 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
           </CardContent>
         </Card>
 
-        {/* Replies */}
         {replies && replies.length > 0 && (
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold">Replies</h2>
             {replies.map((reply) => (
               <Card key={reply.id}>
                 <CardHeader>
-                  <div className="flex items-center justify-between">
-                    <CardDescription>
-                      {reply.author?.full_name || "Anonymous"} • {new Date(reply.created_at).toLocaleDateString()} at{" "}
-                      {new Date(reply.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                    </CardDescription>
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-center gap-2">
+                      <UserAvatar avatarUrl={reply.author?.avatar_url} fullName={reply.author?.full_name} size="sm" />
+                      <CardDescription>
+                        {reply.author?.full_name || "Anonymous"} • {new Date(reply.created_at).toLocaleDateString()} at{" "}
+                        {new Date(reply.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                      </CardDescription>
+                    </div>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -122,7 +125,6 @@ export default async function ForumPostPage({ params }: { params: Promise<{ post
           </section>
         )}
 
-        {/* Reply Form */}
         {user ? (
           <Card>
             <CardHeader>

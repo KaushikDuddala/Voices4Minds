@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
-import { BookOpen, Calendar, User, Plus, ArrowRight, Edit } from "lucide-react"
+import { BookOpen, Calendar, Plus, ArrowRight, Edit } from "lucide-react"
 import { ScrollAnimation } from "@/components/scroll-animation"
+import { UserAvatar } from "@/components/user-avatar"
 
 async function DraftsSection({ userId }: { userId: string }) {
   const supabase = await createClient()
@@ -80,7 +81,7 @@ export default async function BlogPage() {
     .from("blog_posts")
     .select(`
       *,
-      author:profiles(full_name)
+      author:profiles(full_name, avatar_url)
     `)
     .eq("is_published", true)
     .order("published_at", { ascending: false })
@@ -162,7 +163,7 @@ export default async function BlogPage() {
                   <CardContent className="space-y-4">
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
                       <div className="flex items-center gap-2">
-                        <User className="h-4 w-4" aria-hidden="true" />
+                        <UserAvatar avatarUrl={post.author?.avatar_url} fullName={post.author?.full_name} size="sm" />
                         <span>{post.author?.full_name || "Anonymous"}</span>
                       </div>
                       <div className="flex items-center gap-2">

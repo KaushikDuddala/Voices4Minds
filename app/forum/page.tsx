@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import Link from "next/link"
 import { MessageSquare, Users, Plus, Pin, ArrowRight, MessageCircle } from "lucide-react"
 import { ScrollAnimation } from "@/components/scroll-animation"
+import { UserAvatar } from "@/components/user-avatar"
 
 export const metadata = {
   title: "Community Forum | Voices4Minds",
@@ -21,7 +22,7 @@ export default async function ForumPage() {
     .from("forum_posts")
     .select(`
       *,
-      author:profiles(full_name),
+      author:profiles(full_name, avatar_url),
       category:forum_categories(name, slug)
     `)
     .order("created_at", { ascending: false })
@@ -113,10 +114,17 @@ export default async function ForumPage() {
                             </Link>
                           </CardTitle>
                           <CardDescription className="mt-2">
-                            <span className="text-sm">
-                              By {post.author?.full_name || "Anonymous"} •{" "}
-                              {new Date(post.created_at).toLocaleDateString()}
-                            </span>
+                            <div className="flex items-center gap-2">
+                              <UserAvatar
+                                avatarUrl={post.author?.avatar_url}
+                                fullName={post.author?.full_name}
+                                size="sm"
+                              />
+                              <span className="text-sm">
+                                By {post.author?.full_name || "Anonymous"} •{" "}
+                                {new Date(post.created_at).toLocaleDateString()}
+                              </span>
+                            </div>
                           </CardDescription>
                         </div>
                         <div className="flex items-center gap-4 text-sm text-muted-foreground">

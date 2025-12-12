@@ -6,7 +6,7 @@ import Link from "next/link"
 import { Calendar, Users, Settings, Clock, CheckCircle, AlertCircle } from "lucide-react"
 
 export const metadata = {
-  title: "Counselor Dashboard | Voices4Minds",
+  title: "Counselor Dashboard | MindWell",
   description: "Manage your counseling profile, appointments, and availability",
 }
 

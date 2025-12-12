@@ -8,6 +8,7 @@ SETUP NEW DATABASE
 2. Run scripts/00_COMPLETE_DATABASE_SETUP.sql in SQL Editor
 3. Copy API keys and connection strings to .env
 4. Enable email auth in Authentication settings
+5. Set up Vercel Blob for profile pictures (BLOB_READ_WRITE_TOKEN)
 
 APPROVE COUNSELOR
 =================
@@ -70,5 +71,16 @@ pg_dump -h <host> -U postgres -d <database> > backup_$(date +%Y%m%d).sql
 RESTORE DATABASE
 ================
 psql -h <host> -U postgres -d <database> < backup_file.sql
+
+UPDATE USER PROFILE PICTURE
+============================
+UPDATE profiles 
+SET avatar_url = 'https://blob-url.com/image.jpg' 
+WHERE id = '<user_id>';
+
+-- Remove profile picture
+UPDATE profiles 
+SET avatar_url = NULL 
+WHERE id = '<user_id>';
 
 ================================================================================

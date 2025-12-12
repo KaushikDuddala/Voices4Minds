@@ -11,7 +11,6 @@
 -- ============================================================================
 -- STEP 1: Enable Required Extensions
 -- ============================================================================
-
 -- Enable UUID extension for generating unique identifiers
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
@@ -145,7 +144,6 @@ CREATE TABLE IF NOT EXISTS public.testimonials (
 -- ============================================================================
 -- STEP 3: Enable Row Level Security (RLS)
 -- ============================================================================
-
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.counselor_profiles ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.counselor_availability ENABLE ROW LEVEL SECURITY;
@@ -160,7 +158,6 @@ ALTER TABLE public.testimonials ENABLE ROW LEVEL SECURITY;
 -- ============================================================================
 -- STEP 4: Create RLS Policies
 -- ============================================================================
-
 -- Profiles policies
 CREATE POLICY "profiles_select_all" ON public.profiles FOR SELECT USING (true);
 CREATE POLICY "profiles_insert_own" ON public.profiles FOR INSERT WITH CHECK (auth.uid() = id);
@@ -231,7 +228,6 @@ CREATE POLICY "testimonials_insert_all" ON public.testimonials FOR INSERT WITH C
 -- ============================================================================
 -- STEP 5: Create Database Functions & Triggers
 -- ============================================================================
-
 -- Function to auto-create profile when user signs up
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER
@@ -296,7 +292,6 @@ CREATE TRIGGER update_blog_posts_updated_at
 -- ============================================================================
 -- STEP 6: Create Performance Indexes
 -- ============================================================================
-
 CREATE INDEX IF NOT EXISTS idx_appointments_user_id ON public.appointments(user_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_counselor_id ON public.appointments(counselor_id);
 CREATE INDEX IF NOT EXISTS idx_appointments_date ON public.appointments(appointment_date);
@@ -308,7 +303,6 @@ CREATE INDEX IF NOT EXISTS idx_counselor_profiles_approval_status ON public.coun
 -- ============================================================================
 -- STEP 7: Seed Initial Data
 -- ============================================================================
-
 -- Insert forum categories
 INSERT INTO public.forum_categories (name, description, slug) VALUES
   ('Anxiety Support', 'Share experiences and coping strategies for anxiety', 'anxiety-support'),

@@ -14,8 +14,9 @@ TABLE OF CONTENTS
 3. Detailed Table Descriptions
 4. Row Level Security (RLS) Policies
 5. Database Functions & Triggers
-6. Troubleshooting
-7. Manual Approval Workflows
+6. Profile Picture System
+7. Troubleshooting
+8. Manual Approval Workflows
 
 ================================================================================
 1. QUICK SETUP (NEW INSTANCE)
@@ -110,7 +111,7 @@ Key Fields:
   - id: UUID (references auth.users)
   - full_name: User's full name
   - user_type: 'user', 'counselor', or 'admin'
-  - avatar_url: Profile picture URL
+  - avatar_url: Profile picture URL (stored in Vercel Blob)
 Notes: Automatically created via trigger when user signs up
 
 counselor_profiles
@@ -284,7 +285,69 @@ Triggers: BEFORE UPDATE on multiple tables:
   - blog_posts
 
 ================================================================================
-6. TROUBLESHOOTING
+6. PROFILE PICTURE SYSTEM
+================================================================================
+
+OVERVIEW
+--------
+The platform uses Vercel Blob storage for user profile pictures. Users can
+upload profile pictures from their profile page (/profile), and these images
+are displayed throughout the platform.
+
+WHERE PROFILE PICTURES APPEAR
+-----------------------------
+- Blog posts (author avatar)
+- Forum posts and replies (user avatar)
+- Testimonials (if user-submitted)
+- Counselor listings (professional headshot)
+- Counselor appointment dashboard (client profile pictures)
+- User profile page
+
+UPLOADING PROFILE PICTURES
+---------------------------
+Users navigate to /profile and can:
+1. Click to select an image or drag-and-drop
+2. Supported formats: JPG, PNG, GIF, WebP
+3. Maximum file size: 5MB
+4. Images are automatically uploaded to Vercel Blob
+5. The avatar_url in profiles table is updated
+
+TECHNICAL IMPLEMENTATION
+------------------------
+- Server Action: app/actions/upload-avatar.ts
+- Upload Component: components/profile-picture-upload.tsx
+- Display Component: components/user-avatar.tsx
+- Storage: Vercel Blob (BLOB_READ_WRITE_TOKEN environment variable required)
+
+FALLBACK BEHAVIOR
+------------------
+If a user has no profile picture:
+1. Display user's initials in a colored circle
+2. If no name available, show generic user icon
+
+MANAGING PROFILE PICTURES
+--------------------------
+To manually update a user's avatar:
+
+UPDATE profiles 
+SET avatar_url = 'https://your-blob-url.com/image.jpg' 
+WHERE id = '<user_id>';
+
+To remove a profile picture:
+
+UPDATE profiles 
+SET avatar_url = NULL 
+WHERE id = '<user_id>';
+
+SECURITY NOTES
+--------------
+- Blob token is only accessed server-side via Server Actions
+- File type validation ensures only images are uploaded
+- File size limit prevents abuse (5MB max)
+- RLS policies ensure users can only update their own avatar
+
+================================================================================
+7. TROUBLESHOOTING
 ================================================================================
 
 PROBLEM: "new row violates row-level security policy"
@@ -314,8 +377,21 @@ SOLUTION: Verify RLS is enabled:
          SELECT tablename, rowsecurity FROM pg_tables 
          WHERE schemaname = 'public' AND tablename = 'appointments';
 
+PROBLEM: Profile picture upload fails
+SOLUTION: Verify BLOB_READ_WRITE_TOKEN environment variable is set correctly
+         in your Vercel project or .env.local file
+
+PROBLEM: Profile pictures not displaying
+SOLUTION: 1. Check that avatar_url in profiles table contains valid Blob URL
+         2. Verify Vercel Blob integration is properly configured
+         3. Check browser console for CORS or network errors
+
+PROBLEM: Old profile pictures still showing after upload
+SOLUTION: The app uses revalidation, but you may need to hard refresh (Cmd+Shift+R)
+         or clear cache if images are aggressively cached
+
 ================================================================================
-7. MANUAL APPROVAL WORKFLOWS
+8. MANUAL APPROVAL WORKFLOWS
 ================================================================================
 
 APPROVING COUNSELORS

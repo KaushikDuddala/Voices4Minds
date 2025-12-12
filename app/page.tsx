@@ -2,11 +2,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Heart, Users, Calendar, BookOpen, Phone, Shield, ArrowRight, Sparkles } from "lucide-react"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@supabase/supabase-js"
 import { ScrollAnimation } from "@/components/scroll-animation"
 
 export default async function HomePage() {
-  const supabase = await createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY)
+  const supabase = await createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
   const { data: testimonials } = await supabase.from("testimonials").select("*").eq("is_approved", true).limit(3)
 
   return (
@@ -248,9 +248,7 @@ export default async function HomePage() {
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <p className="font-semibold text-sm">
-                        {testimonial.condition && `— Someone recovering from ${testimonial.condition}`}
-                      </p>
+                      <p className="font-semibold text-sm">— {testimonial.author_name}</p>
                     </CardContent>
                   </Card>
                 </ScrollAnimation>

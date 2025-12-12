@@ -13,10 +13,12 @@ import { Badge } from "@/components/ui/badge"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { AlertCircle, X, Plus, CheckCircle, Clock } from "lucide-react"
+import { ProfilePictureUpload } from "@/components/profile-picture-upload"
 
 export default function CounselorProfilePage() {
   const [profile, setProfile] = useState<any>(null)
   const [counselorProfile, setCounselorProfile] = useState<any>(null)
+  const [user, setUser] = useState<any>(null)
   const [fullName, setFullName] = useState("")
   const [bio, setBio] = useState("")
   const [credentials, setCredentials] = useState("")
@@ -31,7 +33,6 @@ export default function CounselorProfilePage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const router = useRouter()
   const supabase = createClient()
-
   useEffect(() => {
     const fetchData = async () => {
       const {
@@ -43,12 +44,17 @@ export default function CounselorProfilePage() {
         return
       }
 
+      setUser(user)
+
       // Fetch profiles
+
+      
       const { data: profileData } = await supabase.from("profiles").select("*").eq("id", user.id).single()
 
       const { data: counselorData } = await supabase.from("counselor_profiles").select("*").eq("id", user.id).single()
 
       setProfile(profileData)
+      setCounselorProfile(counselorData)
       setCounselorProfile(counselorData)
 
       if (profileData) {
@@ -197,6 +203,16 @@ export default function CounselorProfilePage() {
               </CardContent>
             </Card>
           )}
+
+        <Card className="border-2">
+          <CardHeader>
+            <CardTitle>Profile Picture</CardTitle>
+            <CardDescription>Upload or change your profile picture</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ProfilePictureUpload userId={user.id} currentAvatarUrl={profile?.avatar_url} />
+          </CardContent>
+        </Card>
 
           <Card>
             <CardHeader>

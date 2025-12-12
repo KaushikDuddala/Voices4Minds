@@ -2,7 +2,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Calendar, Clock, User } from "lucide-react"
+import { Calendar, Clock } from "lucide-react"
+import { UserAvatar } from "@/components/user-avatar"
 
 export const metadata = {
   title: "My Appointments | Counselor Portal",
@@ -20,20 +21,18 @@ export default async function CounselorAppointmentsPage() {
     redirect("/auth/login")
   }
 
-  // Check if counselor
   const { data: profile } = await supabase.from("profiles").select("user_type").eq("id", user.id).single()
 
   if (profile?.user_type !== "counselor") {
     redirect("/dashboard")
   }
 
-  // Fetch all appointments
   const { data: appointments } = await supabase
     .from("appointments")
     .select(
       `
       *,
-      user:profiles!appointments_user_id_fkey(full_name)
+      user:profiles!appointments_user_id_fkey(full_name, avatar_url)
     `,
     )
     .eq("counselor_id", user.id)
@@ -92,9 +91,11 @@ export default async function CounselorAppointmentsPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
-                            <User className="h-6 w-6 text-primary" aria-hidden="true" />
-                          </div>
+                          <UserAvatar
+                            avatarUrl={appointment.user?.avatar_url}
+                            fullName={appointment.user?.full_name}
+                            size="lg"
+                          />
                           <div>
                             <CardTitle className="text-xl">{appointment.user?.full_name || "Client"}</CardTitle>
                             <CardDescription>Client Session</CardDescription>
@@ -149,9 +150,11 @@ export default async function CounselorAppointmentsPage() {
                     <CardHeader>
                       <div className="flex items-start justify-between gap-4 flex-wrap">
                         <div className="flex items-start gap-4">
-                          <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                            <User className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
-                          </div>
+                          <UserAvatar
+                            avatarUrl={appointment.user?.avatar_url}
+                            fullName={appointment.user?.full_name}
+                            size="lg"
+                          />
                           <div>
                             <CardTitle className="text-xl">{appointment.user?.full_name || "Client"}</CardTitle>
                             <CardDescription>Client Session</CardDescription>
