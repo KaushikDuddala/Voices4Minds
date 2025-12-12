@@ -1,5 +1,5 @@
 {
-  "name": "MindWell",
+  "name": "Voices4Minds",
   "version": "0.1.0",
   "scripts": {
     "build": "next build",
