@@ -2,11 +2,11 @@ import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Heart, Users, Calendar, BookOpen, Phone, Shield, ArrowRight, Sparkles } from "lucide-react"
-import { createClient } from "@supabase/supabase-js"
+import { createClient } from "@/lib/supabase/server"
 import { ScrollAnimation } from "@/components/scroll-animation"
 
 export default async function HomePage() {
-  const supabase = await createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!)
+  const supabase = await createClient()
   const { data: testimonials } = await supabase.from("testimonials").select("*").eq("is_approved", true).limit(3)
 
   return (
